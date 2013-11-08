@@ -39,7 +39,8 @@ function createTask(grunt, any) {
     }
     var args = Array.prototype.slice.call(arguments, 2).join(':');
     var options = this.options({
-      timestamps: path.join(__dirname, '..', '.cache')
+      timestamps: path.join(__dirname, '..', '.cache'),
+      globalDeps: []
     });
     var config = grunt.config.get([name, target]);
     var id = cacheConfig(config);
@@ -91,7 +92,7 @@ function createTask(grunt, any) {
             time = previous;
           }
         }
-        var deps = obj.deps || [];
+        var deps = options.globalDeps.concat(obj.deps || []);
         var depsNewer = deps.some(function(filepath) {
           return fs.statSync(filepath).mtime > time;
         });
