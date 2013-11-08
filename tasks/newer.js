@@ -91,8 +91,12 @@ function createTask(grunt, any) {
             time = previous;
           }
         }
+        var deps = obj.deps || [];
+        var depsNewer = deps.some(function(filepath) {
+          return fs.statSync(filepath).mtime > time;
+        });
         var src = obj.src.filter(function(filepath) {
-          var newer = fs.statSync(filepath).mtime > time;
+          var newer = depsNewer || fs.statSync(filepath).mtime > time;
           if (newer) {
             modified = true;
           }
