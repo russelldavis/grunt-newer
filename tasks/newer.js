@@ -93,6 +93,7 @@ function createTask(grunt, any) {
           }
         }
         var deps = options.globalDeps.concat(obj.deps || []);
+        deps = grunt.file.expand(deps);
         var depsNewer = deps.some(function(filepath) {
           return fs.statSync(filepath).mtime > time;
         });
