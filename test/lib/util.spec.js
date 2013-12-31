@@ -171,6 +171,35 @@ describe('util', function() {
       });
     });
 
+    it('provides all files if a dependency is newer than dest', function(done) {
+      var files = [{
+        src: ['src/js/a.js', 'src/js/b.js'],
+        deps: ['src/js/c.js'],
+        dest: 'dest/js/abc.min.js'
+      }];
+      util.filterFilesByTime(files, new Date(1000), function(err, results) {
+        assert.isNull(err);
+        assert.equal(results.length, 1);
+        var result = results[0];
+        assert.equal(result.dest, 'dest/js/abc.min.js');
+        assert.equal(result.src.length, 2);
+        assert.deepEqual(result.src.sort(), files[0].src);
+        done();
+      });
+    });
+
+    it('provides no files if none are newer than dest', function(done) {
+      var files = [{
+        src: ['src/js/a.js', 'src/js/b.js'],
+        dest: 'dest/js/abc.min.js'
+      }];
+      util.filterFilesByTime(files, new Date(1000), function(err, results) {
+        assert.isNull(err);
+        assert.equal(results.length, 0);
+        done();
+      });
+    });
+
     it('provides all files if dest does not exist', function(done) {
       var files = [{
         src: ['src/js/a.js', 'src/js/b.js', 'src/js/c.js'],
@@ -197,6 +226,22 @@ describe('util', function() {
         var result = results[0];
         assert.isUndefined(result.dest);
         assert.deepEqual(result.src, ['src/js/c.js']);
+        done();
+      });
+    });
+
+    it('provides all files if no dest and a dependency is newer than previous',
+        function(done) {
+      var files = [{
+        src: ['src/js/a.js', 'src/js/b.js'],
+        deps: ['src/js/c.js'],
+      }];
+      util.filterFilesByTime(files, new Date(200), function(err, results) {
+        assert.isNull(err);
+        assert.equal(results.length, 1);
+        var result = results[0];
+        assert.isUndefined(result.dest);
+        assert.deepEqual(result.src.sort(), files[0].src);
         done();
       });
     });
