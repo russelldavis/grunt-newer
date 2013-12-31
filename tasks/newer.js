@@ -38,7 +38,8 @@ function createTask(grunt) {
     }
     var args = Array.prototype.slice.call(arguments, 2).join(':');
     var options = this.options({
-      cache: path.join(__dirname, '..', '.cache')
+      cache: path.join(__dirname, '..', '.cache'),
+      globalDeps: []
     });
 
     // support deprecated timestamps option
@@ -89,6 +90,13 @@ function createTask(grunt) {
 
     var previous = fs.statSync(stamp).mtime;
     var files = grunt.task.normalizeMultiTaskFiles(config, target);
+    // Preprocess dependencies
+    files.forEach(function(obj) {
+      var deps = options.globalDeps.concat(obj.deps || []);
+      if (deps.length) {
+        obj.deps = grunt.file.expand(deps);
+      }
+    });
     util.filterFilesByTime(files, previous, function(err, newerFiles) {
       if (err) {
         return done(err);
